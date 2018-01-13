@@ -1,0 +1,15 @@
+{% block content %}
+
+  {% for post in object_list %}
+    <div class="post-entry">
+      <h2><a href="{% url 'note_update' post.pk %}" >{{ post.title }}</a></h2>
+      <p>{{ post.description }}</p>
+	  <medium><a href="{% url 'note_delete' post.pk %}" >Delete</a></medium>
+      <medium><a href="{% url 'note_pinned' post.pk %}" >Pin</a></medium>
+	  <medium><a href="{% url 'note_archived' post.pk %}" >Archive</a></medium>
+      <medium><a href="{% url 'note_lable' post.pk %}" >Lable</a></medium>
+      <medium><a href="{% url 'note_reminder' post.pk %}" >Reminder</a></medium>
+      <medium><a href="{% url 'note_collaborate' post.pk %}" >colaborate</a></medium>
+    </div>
+  {% endfor %}
+{% endblock content %}
