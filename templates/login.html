@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="container">
+	<h2>Login</h2>
+
+	<div class="alert alert-success" role="alert" id="success_message">Success <i class="glyphicon glyphicon-thumbs-up"></i> Thanks, You have been Logged In Successfully.</div>
+
+	<div class="alert alert-error fade in">
+		<a href="#" class="close" data-dismiss="alert">&times;</a>
+		<strong>Username or password does not match..!</strong>
+		<span class="message-error"></span>
+	</div>
+	<form class="form-horizontal login" action="" method="post" data-toggle="validator">
+		{% csrf_token %}
+		{{ form.non_field_errors }}
+		<div class="form-group">
+		  <label for="{{ form.username.id_for_label }}" class="col-md-4 control-label">Username</label>
+		  <div class="col-md-4 inputGroupContainer">
+		    <div class="input-group">
+		      <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+		       {{ form.username }}
+			   {{ form.username.errors }}
+		    </div>
+		  </div>
+		</div>
+
+		<div class="form-group">
+			<label for="{{ form.password.id_for_label }}" class="col-md-4 control-label">Password</label>
+			<div class="col-md-4 inputGroupContainer">
+				<div class="input-group">
+					 <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+					{{ form.password }}
+					{{ form.password.errors }}
+				</div>
+			</div>
+		</div>
+		<button type="submit" class="btn btn-primary" >Login </button>
+	</form>
+</div>
+<style>
+	.errorlist, .alert-error {
+		display: none;
+	}
+	#success_message{ display: none;}
+</style>
+{% endblock content%}
+{% block script %}
+<script>
+	$( document ).ready(function() {
+		$('form.login').bootstrapValidator({
+	        // To use feedback icons, ensure that you use Bootstrap v3.1.0 or later
+	        feedbackIcons: {
+	            valid: 'glyphicon glyphicon-ok',
+	            invalid: 'glyphicon glyphicon-remove',
+	            validating: 'glyphicon glyphicon-refresh'
+	        },
+	        fields: {
+	            username: {
+	                validators: {
+	                    notEmpty: {
+	                        message: 'Please supply your username.'
+	                    },
+	                }
+	            },
+				password: {
+				   validators: {
+					   notEmpty: {
+						   message: 'The password is required and can\'t be empty.'
+					   },
+				   }
+			   },
+		   	}
+	        })
+	        .on('success.form.bv', function(e) {
+	             // Do something ...
+	            $('form.login').data('bootstrapValidator').resetForm();
+	            // Prevent form submission
+	            e.preventDefault();
+	            // Get the form instance
+	            var $form = $(e.target);
+	            // Get the BootstrapValidator instance
+	            var bv = $form.data('bootstrapValidator');
+				console.log($form.attr('action'))
+	            // Use Ajax to submit form data
+	            $.post($form.attr('action'), $form.serialize(),  function(result) {
+	                if(result.status){
+						$('#success_message').slideDown({ opacity: "show" }, "slow")
+						window.location.href = 'http://localhost:8000/';
+						$('.alert-error').slideUp({ opacity: "hide" }, "slow")
+					}else{
+						$('#success_message').slideUp({ opacity: "hide" }, "slow")
+						$('.alert-error').slideDown({ opacity: "show" }, "slow");
+						$('.message-error').html(result.message);
+					}
+	            }, 'json');
+	        });
+	});
+</script>
+{% endblock %}

@@ -5,6 +5,7 @@ urlpatterns = [
     path('', views.note_list.as_view(), name = 'home'),
     # path('post/<int:pk>/', views.BlogDetailView.as_view(), name = 'post_detail'),
     # path('post/new/', views.BlogCreateView.as_view(), name="post_new"),
+    path('edit/<int:pk>/', views.note_edit, name='note_edit'),
     path('update/<int:pk>/', views.note_update.as_view(), name='note_update'),
     path('detail/<int:pk>/', views.note_details.as_view(),name='note_detail'),
     path('delete/<int:pk>/', views.note_delete.as_view(), name='note_delete'),

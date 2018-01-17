@@ -17,11 +17,17 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls import *
 from notes import views
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     url('signup/', views.signup, name='signup'),
+    url('register/', views.register, name='register'),
+    # url(r'^login/$', views.login_user, name='login'),
+    url(r'^login/$', views.Login.as_view(), name='login'),
+    url(r'^logout/$', auth_views.logout, name='logout'),
     path('', include('notes.urls')),
     url('create/', views.create_note, name='create_note'),
+
 
 ]
