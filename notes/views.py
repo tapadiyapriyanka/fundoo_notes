@@ -117,8 +117,9 @@ def login_user(request):
 	form = loginForm()
 	return render(request, 'login.html', {'form':form})
 
-
 class note_list(ListView):
+	''' This is a class based view of django which uses ListView.
+	    it returns object_list of objects in database.'''
 	model = Notes
 	template_name = 'home.html'
 
@@ -142,8 +143,7 @@ def create_note(request):
 	except Exception as e:
 		response_data['status'] = False
 		response_data['message'] = 'something went wrong'
-	return render(request, 'create_note.html', {'form':form})
-
+	return render(request, 'home.html', {'form':form})
 
 class note_details(DetailView):
 	model = Notes
@@ -152,55 +152,42 @@ class note_details(DetailView):
 # class note_edit(TemplateView):
 def note_edit(request, pk):
 	note = Notes.objects.get(id=pk)
+	print("note = ",note)
 	# form = update_note_form(request.POST)
-	# import pprint as pprint
-	# print(form)
-	# for name, value in request.POST.items():
-	# 	print("name = ",name)   #dict.items()
-	# 	Notes(**dict( [ (name, value) ] )).save()
+	# for name, value in request.POST.items()
 	return render(request, 'note_update.html', {'note':note})
-	# model = Notes
-	# # import pdb; pdb.set_trace()
-	# fields = ['title', 'description', 'is_pinned', 'color']
-	# template_name = 'note_update.html'
 
-class note_update(TemplateView):
+class note_update(UpdateView):
 	def post(self, request, *args, **kwargs):
-		data_dict = {}
-		# print(request.POST.get('pk'))
-		# print("a = ",a.title)
-		print("in post call",request.POST.items())
-		for name,value in request.POST.items():
-			print("name = ",name)
-			print("value = ",value)
-		for name, value in request.POST.items():     #dict.items()
-			data_dict[name] = value
-
-			# data_dict.pop(csrfmiddlewaretoken,)
-			if 'csrfmiddlewaretoken' in data_dict:
-				print("in if condition")
-				del data_dict['csrfmiddlewaretoken']
-			print("in for loop ")
-			# del data_dict[csrfmiddlewaretoken]
-		print("data_dict = ",data_dict)
-		m = Notes(**data_dict)
-		m.save()
-			# Notes(**dict( [ (name, value) ] )).save()
-		print("data_dict = ",data_dict)
-		# response_data = {}
-		# title = request.POST.get('title')
-		# description = request.POST.get('description')
-		# is_pinned = request.POST.get('is_pinned')
-		# color = request.POST.get('color')
-		# response_data['status'] = True
-		# response_data['message'] = "Updated Successfully"
-		return HttpResponse(json.dumps(data_dict), content_type='application/json')
+		response_data = {}
+		response_data['status'] = False
+		if kwargs.get('pk', None):
+			try:
+				pk = kwargs.get('pk', None)
+				obj = Notes.objects.get(pk=pk)
+				obj.title = request.POST.get('title')
+				obj.description = request.POST.get('description')
+				obj.is_pinned = request.POST.get('is_pinned')
+				obj.color = request.POST.get('color')
+				obj.save()
+				response_data['status'] = True
+				response_data['message'] = "Updated Successfully"
+			except Exception(DoesNotExist):
+				response_data['message'] = "Note doesnt exists"
+			except Exception as e:
+				response_data['message'] = 'something went wrong'
+		else:
+			response_data['message'] = "Missing note identifier (id)"
+		return HttpResponse(json.dumps(response_data), content_type='application/json')
 
 	def get(self, request, *args, **kwargs):
 		print("in get call")
+		response_data = {}
 		for name, value in request.POST.items():
 			print("name = ",name)   #dict.items()
 			Notes(**dict( [ (name, value) ] )).save()
+		response_data['status'] = False
+		response_data['message'] = "Note not found.."
 		return HttpResponse(json.dumps(response_data), content_type='application/json')
 
 class note_delete(DeleteView):

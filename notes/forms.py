@@ -29,6 +29,9 @@ class loginForm(forms.Form):
 class create_note_form(forms.ModelForm):
     class Meta:
         model = Notes
+        widgets = {
+          'description': forms.Textarea(attrs={'rows':1, 'cols':25})
+        }
         fields = ('title', 'description', 'is_pinned', 'color')
 
 class update_note_form(forms.ModelForm):

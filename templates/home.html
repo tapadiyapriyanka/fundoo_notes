@@ -3,93 +3,90 @@
 
 <div class="container">
 <div class="row grid">
+    <form method="post" action=".">
 
+        <div class="panel-footer">
+          <div class="input-group">
+            <div id="id_textnote" class="form-control" placeholder="Take a Note.." onclick="myFunction()">Take a note..</div>
+            <div id="mydiv">
+                <div class="title_class" style>Title</div>
+                <div contenteditable="true" role="textbox" spellcheck="true" value="{{note.title}}"></div>
+                <div class="take_note_class">Take a note..</div>
+                <div contenteditable="true" spellcheck="true" role="textbox" aria-multiline="true" tabindex="0" value="{{note.description}}"></div>
+                Is Pinned <br>
+                Yes <input name="is_pinned" type="radio" value="{{note.is_pinned}}" >
+                No <input name="is_pinned" type="radio" value="{{note.is_pinned}}" >
+                Select Color: <Br>
+                    <select name="color">
+                        <option value="RED" {% if note.color == '' %} selected='selected' {% else %} {% endif %}>RED</option>
+                        <option value="BLUE" >BLUE</option>
+                        <option value="GREEN" >GREEN</option>
+                    </select>
+                    {% csrf_token %}
+                <input type="submit" name ="submit" value="Done" id ="submit_id"/>
+            </div>
+
+          </div>
+        </div>
+    </form>
 {% for post in object_list %}
-    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4 col-xl-4 card grid-item">
-      <div class="thumbnail">
-        {# <img src="https://media.istockphoto.com/photos/adhesive-note-on-desk-picture-id517877110" class=""> #}
-        <div class="caption">
-        <h2><a href="{% url 'note_edit' post.pk %}" data-toggle="modal" data-target="#myModal">
-            <h1>{{post.pk}}</h1>
-            {{ post.title }}</a></h2>
-                <div id="myModal" class="modal fade" role="dialog">
-                  <div class="modal-dialog">
-                    <!-- Modal content-->
-                    <div class="modal-content">
-                      {# <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        <h4 class="modal-title">Update Note</h4>
-                      </div> #}
-                      <div class="modal-body">
-                      </div>
-                      <div class="modal-footer">
-                        {# <button type="button" class="btn btn-default" id='sbt_id' data-dismiss="modal">Close</button> #}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-          <p>{{ post.description }}</p>
-        </div>
-
-        <div class="caption card-footer">
-          <ul class="list-inline">
-              <medium><a href="{% url 'note_delete' post.pk %}" >Delete</a></medium>
-              <medium><a href="{% url 'note_pinned' post.pk %}" >Pin</a></medium>
-	          <medium><a href="{% url 'note_archived' post.pk %}" >Archive</a></medium>
-              <medium><a href="{% url 'note_lable' post.pk %}" >Lable</a></medium>
-              <medium><a href="{% url 'note_reminder' post.pk %}" >Reminder</a></medium>
-              <medium><a href="{% url 'note_collaborate' post.pk %}" >colaborate</a></medium>
-            {# <li><i class="fa fa-user"></i></li> #}
-          </ul>
-        </div>
-      </div>
-    </div>
+    {% block card-note %}
+        {% include "inner_htmls/card-note.html" %}
+    {% endblock %}
 {% endfor %}
 <!-- Modal -->
 
-
 </div><!-- row -->
 </div> <!-- container grid -->
+<style>
+	.errorlist, .alert-error {
+		display: none;
+	}
+	#success_message{
+		 display: none;
+	 }
+</style>
 {% endblock content%}
 
 {% block script %}
-<script type="text/javascript">
-// $("#ajax_update").ajaxSubmit(url: '/create/', type: 'post'})
-// $.post('/create/', $('#theForm').serialize())
+<script>
 $(document).ready(function(){
     $('body').on('click', '#submit_id', function() {
         console.log("helllo");
         var $form = $('#ajax_update');
         console.log("form = ",$form);
         var formdata = $form.serialize();
+        console.log("formdata = ",formdata)
         $.post($form.attr('action'), formdata, function(result) {
+            console.log("result = ",result);
             if(result.status){
-                $('#success_message').slideDown({ opacity: "show" }, "slow")
+                console.log("result.status = ",result.status);
+                alert("Updated")
+                location.reload()
+                // $('#success_message').
                 $('.alert-error').slideUp({ opacity: "hide" }, "slow")
             }else{
-                $('#success_message').slideUp({ opacity: "hide" }, "slow")
+                console.log("in else");
+                // $('#success_message').slideUp({ opacity: "hide" }, "slow")
                 $('.alert-error').slideDown({ opacity: "show" }, "slow");
                 $('.message-error').html(result.message);
             }
         }, 'json');
     });
 });
-// $(function() {
-//     $('#submit_id').on('click',function(){
-//         alert("hello");
-//         var $form = $('#ajax_update');
-//         var formdata = $form.serialize()
-//         $.ajax({
-//             type: 'POST',
-//             url : '/note_update/',
-//             data : formdata
-//         });
-//     });
+</script>
 
-
-
-
+<script>
+function myFunction() {
+    var x = document.getElementById("mydiv");
+    if (x.style.display === "none") {
+        x.style.display = "block";
+        $("#id_textnote").hide();
+    } else {
+        x.style.display = "none";
+        $("#id_textnote").show();
+    }
+}
 </script>
 
 {% endblock %}

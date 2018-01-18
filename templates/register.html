@@ -84,8 +84,12 @@
 	.errorlist, .alert-error {
 		display: none;
 	}
-	#success_message{ display: none;}
+	#success_message{
+		 display: none;
+	 }
 </style>
+{% endblock content%}
+{% block script %}
 <script>
 	$( document ).ready(function() {
 		$('form.registration').bootstrapValidator({
@@ -212,6 +216,5 @@
 		// });
 	});
 </script>
-{% endblock content%}
-{% block script %}
+
 {% endblock %}
