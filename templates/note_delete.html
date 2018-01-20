@@ -1,9 +1,8 @@
 {% block content %}
 <h1>Delete Note</h1>
-<form action="" method="post" >
-    {% csrf_token %}
-    <p>Are you sure you want to delete Note <h3>{{ object }}</h3> </p>
-<input type="button" value="Confirm" id ="submit_id" />
+<form action="{% url 'note_delete_note' note.pk %}" method="post" id="ajax_delete" >{% csrf_token %}
+    <h3>{{ note.title }}</h3>
+    <p>Are you sure you want to delete Note??..  </p>
+    <input type="submit" value="Confirm" id ="delete_id" />
 </form>
-
 {% endblock %}

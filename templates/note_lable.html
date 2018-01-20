@@ -1,7 +1,9 @@
 {% block content %}
-    <h1>Lable Note</h1>
-    <form action="" method="post">{% csrf_token %}
-      {{ form.as_p }}
-    <input type="submit" value="Update" />
+
+<h1>Lable Note</h1>
+<form action="{% url 'note_lable_note' note.pk %}" method="post" id="ajax_label" >
+    {% csrf_token %}
+    label<br><input name="label" type="text" id = "linput_id" value="{{note.label}}" >
+<input type="button" value="Update" id ="label_id" data-dismiss="modal"/>
 </form>
 {% endblock %}

@@ -12,7 +12,7 @@ class Notes(models.Model):
     is_deleted   = models.BooleanField(default=False)
     is_archived  = models.BooleanField(default=False)
     label        = models.CharField(max_length=20)
-    remainder    = models.DateTimeField(null=True, blank=True)
+    mydate       = models.DateField(null=True, blank=True)
     collaborate  = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name='collaborated_user')
     is_pinned    = models.NullBooleanField(blank=True, null=True, default=None)
     color        = models.CharField(default=None, max_length=20, blank=True,null=True)

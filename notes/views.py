@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.views.generic import TemplateView, ListView, DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.template.response import TemplateResponse
-from .forms import SignUpForm, create_note_form, registrationForm, loginForm, update_note_form
+from .forms import SignUpForm, create_note_form, registrationForm, loginForm, update_note_form, reminder_form
 from .models import Notes
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -13,6 +13,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 import json
 from django.db import IntegrityError
+from django.core.exceptions import ObjectDoesNotExist
 
 def signup(request):
 	if request.method == 'POST':
@@ -127,18 +128,21 @@ def create_note(request):
 	try:
 		form = create_note_form(request.POST)
 		if request.method == "POST":
+			print("in post method")
 			response_data = {}
-			if form.is_valid():
-				instance = form.save(commit=False)
-				instance.title = request.POST.get('title')
-				instance.description = request.POST.get('description')
-				instance.is_pinned = request.POST.get('is_pinned')
-				instance.color = request.POST.get('color')
-				# instance.user  = request.POST.get('user')
-				instance.save()
-				response_data['status'] = True
-				response_data['message'] = 'Successfully Filled data'
-				return HttpResponse(json.dumps(response_data), content_type='application/json')
+			# if form.is_valid():
+			instance = form.save(commit=False)
+			print("instance = ",instance)
+			instance.title = request.POST.get('title')
+			print("instance.title = ",instance.title)
+			instance.description = request.POST.get('description')
+			instance.is_pinned = request.POST.get('is_pinned')
+			instance.color = request.POST.get('color')
+			# instance.user  = request.POST.get('user')
+			instance.save()
+			response_data['status'] = True
+			response_data['message'] = 'Successfully Filled data'
+			return HttpResponse(json.dumps(response_data), content_type='application/json')
 			# return redirect('home')
 	except Exception as e:
 		response_data['status'] = False
@@ -190,10 +194,34 @@ class note_update(UpdateView):
 		response_data['message'] = "Note not found.."
 		return HttpResponse(json.dumps(response_data), content_type='application/json')
 
-class note_delete(DeleteView):
-	model = Notes
-	template_name = 'note_delete.html'
-	success_url = reverse_lazy('home')
+def note_delete(request, pk):
+	note = Notes.objects.get(id=pk)
+	print("note = ",note)
+	return render(request, 'note_delete.html', {'note':note})
+	# model = Notes
+	# template_name = 'note_delete.html'
+	# success_url = reverse_lazy('home')
+
+class note_delete_note(DeleteView):
+	def post(self, request, *args, **kwargs):
+		response_data = {}
+		response_data['status'] = False
+		if kwargs.get('pk', None):
+			try:
+				pk = kwargs.get('pk', None)
+				obj = Notes.objects.get(pk=pk)
+				print("obj = ",obj)
+				obj.delete()
+				response_data['status'] = True
+				response_data['message'] = "Deleted Successfully"
+			except self.Notes.DoesNotExist:
+				response_data['message'] = "Note doesnt exists"
+			except Exception as e:
+				response_data['message'] = 'something went wrong'
+		else:
+			response_data['message'] = "Missing note identifier (id)"
+		return HttpResponse(json.dumps(response_data), content_type='application/json')
+
 
 class note_unpinned(ListView):
 	model = Notes
@@ -212,15 +240,37 @@ class note_archived(UpdateView):
 	fields = ['is_archived']
 	template_name = 'note_archived.html'
 
-class note_lable(UpdateView):
-	model = Notes
-	fields = ['label']
-	template_name = 'note_lable.html'
+def note_lable(request, pk):
+	note = Notes.objects.get(id=pk)
+	return render(request, 'note_lable.html', {'note':note})
+	# model = Notes
+	# fields = ['label']
+	# template_name = 'note_lable.html'
 
-class note_reminder(UpdateView):
-	now = datetime.datetime.now()
+class note_lable_note(UpdateView):
+		def post(self, request, *args, **kwargs):
+			response_data = {}
+			response_data['status'] = False
+			if kwargs.get('pk', None):
+				try:
+					pk = kwargs.get('pk', None)
+					obj = Notes.objects.get(pk=pk)
+					obj.label = request.POST.get('label')
+					obj.save()
+					response_data['status'] = True
+					response_data['message'] = "Labeled Successfully"
+				except Exception(DoesNotExist):
+					response_data['message'] = "Note doesnt exists"
+				except Exception as e:
+					response_data['message'] = 'something went wrong'
+			else:
+				response_data['message'] = "Missing note identifier (id)"
+			return HttpResponse(json.dumps(response_data), content_type='application/json')
+
+class note_reminder(CreateView):
 	model = Notes
-	fields = ['remainder']
+	form = reminder_form
+	fields = ['mydate']
 	template_name = 'note_reminder.html'
 
 class note_colaborator(UpdateView):

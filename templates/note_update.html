@@ -1,20 +1,16 @@
 {% block content %}
     <h1>Update Note</h1>
     <form action="{% url 'note_update' note.pk %}" method="post" id="ajax_update">{% csrf_token %}
-        Title<br><input name="title" type="text" value="{{note.title}}" >
-        Description<br><input name="description" type="text" value="{{note.description}}" >
+        Title<input name="title" type="text" value="{{note.title}}" ><br>
+        Description<input name="description" type="text" value="{{note.description}}" ><br>
         Is Pinned <br>
         Yes <input name="is_pinned" type="radio" value="{{note.is_pinned}}" >
-        No <input name="is_pinned" type="radio" value="{{note.is_pinned}}" >
+        No <input name="is_pinned" type="radio" value="{{note.is_pinned}}" ><br>
         Select Color: <Br>
             <select name="color">
                 <option value="RED" {% if note.color == '' %} selected='selected' {% else %} {% endif %}>RED</option>
                 <option value="BLUE" >BLUE</option>
                 <option value="GREEN" >GREEN</option>
-            </select>
+            </select><br>
     <input type="button" value="Update" id ="submit_id" data-dismiss="modal"/>
-</form>
 {% endblock %}
-
-
-{# {% url 'note_update' post.pk %} #}
